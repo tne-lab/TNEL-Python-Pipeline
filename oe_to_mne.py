@@ -7,7 +7,7 @@ def load_OE_to_MNE(path):
     session = Session(path)
 
     # Pull out recordNode of interest
-    recordNodeIndex = 0 # funciton var
+    recordNodeIndex = 1 # funciton var
     recordnode = session.recordnodes[recordNodeIndex]
 
     # Pull out rec/exp of interest
@@ -20,7 +20,7 @@ def load_OE_to_MNE(path):
 
     # If metadata doesn't have names
     if data.metadata['names'] == []:
-        data.metadata['names'] = ['CH'+str(i) for i in range(nChans)]
+        data.metadata['names'] = ['CH'+str(i) for i in range(nChans)] #CH0 , CH1 ....
     # Add stim channel namess
     data.metadata['names'].extend(['TTL'])
     # Create channel type and extract fs
@@ -43,7 +43,7 @@ def load_OE_to_MNE(path):
     rawObj = mne.io.RawArray(dataMatrix, info, data.timestamps[0])
     
     # Add events
-    if events != None:
+    if not events.empty:
         trueEvents = events[events['state'] == 1]
         rawObj.add_events(trueEvents[['timestamp','state','channel']].to_numpy(), stim_channel='TTL') # Events in form [ts, n/a, stim channel]
 
@@ -53,14 +53,15 @@ def load_OE_to_MNE(path):
 if __name__ == '__main__':
     path = r'C:\Users\Mark\Documents\Open Ephys\2021-04-30_07-57-25'
     path = r'C:\Users\Mark\Documents\Open Ephys\test_data_2021-05-13_15-05-08'
+    path = r'G:\Shared drives\TNEL - UMN\Project related material\Eric S\CLOSED_LOOP_2021-05-20_13-18-12'
     raw = load_OE_to_MNE(path)
 
     picks = mne.pick_types(raw.info, eeg=True)
-    data, times = raw[picks]
+    #data, times = raw[picks]
     
-    print('data: ', data.shape)
+    #print('data: ', data.shape)
     print('events:' , mne.find_events(raw))
 
     scalings = {'eeg':2000}
-    raw.plot(scalings=scalings, show=True, block=True)
+    raw.plot(scalings=scalings, show=True, block=True, duration= 120, start = 7*60)
     
